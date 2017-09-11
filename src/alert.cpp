@@ -51,8 +51,8 @@ std::string CUnsignedAlert::ToString() const
     return strprintf(
         "CAlert(\n"
         "    nVersion     = %d\n"
-        "    nRelayUntil  = %"PRI64d"\n"
-        "    nExpiration  = %"PRI64d"\n"
+        "    nRelayUntil  = %d\n"
+        "    nExpiration  = %d\n"
         "    nID          = %d\n"
         "    nCancel      = %d\n"
         "    setCancel    = %s\n"
@@ -127,6 +127,9 @@ bool CAlert::AppliesToMe() const
 bool CAlert::RelayTo(CNode* pnode) const
 {
     if (!IsInEffect())
+        return false;
+    // don't relay to nodes which haven't sent their version message
+    if (pnode->nVersion == 0)
         return false;
     // returns true if wasn't already contained in the set
     if (pnode->setKnown.insert(GetHash()).second)
